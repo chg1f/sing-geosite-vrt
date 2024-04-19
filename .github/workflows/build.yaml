@@ -25,7 +25,7 @@ jobs:
         env:
           NO_SKIP: true
         run: |
-          go run -v .
+          go run -v ./...
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:

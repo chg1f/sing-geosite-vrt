@@ -9,12 +9,14 @@ require (
 	github.com/v2fly/v2ray-core/v5 v5.13.0
 	golang.org/x/sync v0.6.0
 	google.golang.org/protobuf v1.32.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
 	github.com/adrg/xdg v0.4.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
 	github.com/miekg/dns v1.1.58 // indirect
 	github.com/sagernet/sing-dns v0.1.12 // indirect

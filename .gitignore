@@ -1,4 +1,5 @@
 /.idea/
 /vendor/
 /geosite.db
+/geosite-cn.db
 /rule-set/
