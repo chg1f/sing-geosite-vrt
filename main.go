@@ -39,12 +39,7 @@ func init() {
 	transport := &github.BasicAuthTransport{
 		Username: accessToken,
 	}
-
 	githubClient = github.NewClient(transport.Client())
-	os.RemoveAll(outputDir)
-	if err := os.MkdirAll(outputDir, 0o755); err != nil {
-		log.Fatal(err)
-	}
 }
 
 func getLatestRelease(from string) (*github.RepositoryRelease, error) {
@@ -124,6 +119,11 @@ func setActionOutput(name string, content string) {
 }
 
 func main() {
+	os.RemoveAll(outputDir)
+	if err := os.MkdirAll(outputDir, 0o755); err != nil {
+		log.Fatal(err)
+	}
+
 	var eg errgroup.Group
 	eg.Go(func() error {
 		sourceRelease, err := getLatestRelease("Loyalsoldier/clash-rules")
