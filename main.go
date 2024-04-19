@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -18,6 +19,7 @@ import (
 	"github.com/sagernet/sing-box/option"
 	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/google/go-github/v45/github"
 	"github.com/v2fly/v2ray-core/v5/app/router/routercommon"
@@ -321,7 +323,9 @@ func generate(release *github.RepositoryRelease, output string, cnOutput string,
 	if err != nil {
 		return err
 	}
+	var eg errgroup.Group
 	for code, domains := range domainMap {
+		name := "geosite-" + code
 		var headlessRule option.DefaultHeadlessRule
 		defaultRule := geosite.Compile(domains)
 		headlessRule.Domain = defaultRule.Domain
@@ -335,20 +339,43 @@ func generate(release *github.RepositoryRelease, output string, cnOutput string,
 				DefaultOptions: headlessRule,
 			},
 		}
-		srsPath, _ := filepath.Abs(filepath.Join(ruleSetOutput, "geosite-"+code+".srs"))
-		//os.Stderr.WriteString("write " + srsPath + "\n")
-		outputRuleSet, err := os.Create(srsPath)
-		if err != nil {
-			return err
-		}
-		err = srs.Write(outputRuleSet, plainRuleSet)
-		if err != nil {
-			outputRuleSet.Close()
-			return err
-		}
-		outputRuleSet.Close()
+		eg.Go(func() error {
+			srcPath, _ := filepath.Abs(filepath.Join(ruleSetOutput, name+".json"))
+			os.Stderr.WriteString("write " + srcPath + "\n")
+			srcOutput, err := os.Create(srcPath)
+			if err != nil {
+				return err
+			}
+			bs, err := json.MarshalIndent(option.PlainRuleSetCompat{
+				Version: 1,
+				Options: plainRuleSet,
+			}, "", "  ")
+			if err != nil {
+				srcOutput.Close()
+				return err
+			}
+			_, err = srcOutput.Write(bs)
+			if err != nil {
+				return err
+			}
+			return srcOutput.Close()
+		})
+		eg.Go(func() error {
+			srsPath, _ := filepath.Abs(filepath.Join(ruleSetOutput, name+".srs"))
+			os.Stderr.WriteString("write " + srsPath + "\n")
+			srsOutput, err := os.Create(srsPath)
+			if err != nil {
+				return err
+			}
+			err = srs.Write(srsOutput, plainRuleSet)
+			if err != nil {
+				srsOutput.Close()
+				return err
+			}
+			return srsOutput.Close()
+		})
 	}
-	return nil
+	return eg.Wait()
 }
 
 func setActionOutput(name string, content string) {
