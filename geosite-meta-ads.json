@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain": [
+        "graph.whatsapp.com",
+        "graph.whatsapp.net",
+        "analytics.facebook.com",
+        "pixel.facebook.com",
+        "graph.instagram.com",
+        "graph-fallback.instagram.com"
+      ],
+      "domain_suffix": [
+        ".graph.whatsapp.com",
+        ".graph.whatsapp.net",
+        ".analytics.facebook.com",
+        ".pixel.facebook.com",
+        ".graph.instagram.com",
+        ".graph-fallback.instagram.com"
+      ]
+    }
+  ]
+}
